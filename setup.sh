@@ -102,6 +102,14 @@ function generate_documentation()
 
   python3 -m venv "$DOCS_VIRTUAL_ENV"
 
+  ret="$?"
+  if [[ "$ret" -ne 0 ]]; then
+    local errmsg="[ERROR]:Failed to create virtual env to build docs."
+    errmsg+=" The filesystem may not support symbolic links."
+    complain "${errmsg}"
+    exit "$ret"
+  fi
+
   # Activate python virtual env
   source "${DOCS_VIRTUAL_ENV}/bin/activate"
   say 'Creating python virtual env...'
@@ -348,6 +356,14 @@ function synchronize_files()
   mkdir -p "$mandir"
 
   python3 -m venv "$DOCS_VIRTUAL_ENV"
+
+  local ret="$?"
+  if [[ "$ret" -ne 0 ]]; then
+    local errmsg="[ERROR]:Failed to create virtual env to build docs."
+    errmsg+=" The filesystem may not support symbolic links."
+    complain "${errmsg}"
+    exit "$ret"
+  fi
 
   # Activate python virtual env
   source "${DOCS_VIRTUAL_ENV}/bin/activate"
