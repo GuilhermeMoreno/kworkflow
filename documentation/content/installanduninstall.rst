@@ -69,6 +69,10 @@ To check if the installations was ok, open another terminal and type::
 
     kw help
 
+
+.. note::
+   For a quicker install or for installing without sphinx, use \-\-skip-docs flag
+
 Package install
 ~~~~~~~~~~~~~~~
 
@@ -86,6 +90,9 @@ Update
 - Update manually:
    You can update `kw` manually by pulling the project's repository and installing
    `kw` again (`./setup.sh -i` removes legacy files and installs new ones).
+
+.. note::
+   If you are developing for kw, you can install your local version by running `./setup .sh -i` on your local repository. This will override your current installation.
 
 Remove
 ------

@@ -187,6 +187,12 @@ However, few of them deserve a brief explanation:
   **run_tests.sh** script itself.
 * **bug**: Something is not working as expected.
 
+About Selecting Issues
+----------------------
+Despite our best efforts, the isssue labels may not be always accurate. If you are working in a group, it may be useful to build a backlog before starting development. This will allow team members to always have a second option, in case the issue is harder than initially thought. This will also allow for a better team organization and awareness, since all members knows what the team is working on.
+
+Also if you are looking for the most pressing issues, it might be useful to look at the Kanban board in the github project.
+
 How we incorporate PRs
 ----------------------
 In the kw project, we avoid the addition of extra commits per PR. For this
