@@ -58,6 +58,7 @@ Check out our tutorials to see how you can use kw.
    tutorials/find-maintainers
    tutorials/kernel-debug
    tutorials/pomodoro-report
+   tutorials/git-rebase
 
 kw Man
 ======
