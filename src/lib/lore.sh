@@ -150,13 +150,43 @@ function retrieve_available_mailing_lists()
 # If it is the first patch, return 0; otherwise, return 1.
 function is_introduction_patch()
 {
-  local message_id_link="$1"
-  local sequence
+  # matches = re.search(r'^\[([^]]*)]', subject)
+  #           if not matches:
+  #               break
 
-  sequence=$(grep --only-matching --perl-regexp '\-[0-9]+\-' <<< "$message_id_link")
-  sequence=$(printf '%s' "$sequence" | tr -d '-')
+  #           bracketed = matches.groups()[0].strip()
+  #           # Fix [PATCHv3] to be properly [PATCH v3]
+  #           bracketed = re.sub(r'(patch)(v\d+)', r'\1 \2', bracketed, flags=re.I)
 
-  [[ "$sequence" == 1 ]] && return 0
+  local message_subject="$1"
+  local all_brackets
+  local counter=-1
+
+  all_brackets=$(grep --only-matching --perl-regexp '\[(.*?)\]' <<< "$message_subject")
+
+  while IFS= read -r line; do
+    #stripped=$(echo "$line" | tr -d '[:space:]')
+    stripped="$line"
+    bracketed=$(echo "$stripped" | sed -E "s/(patch)(v[[:digit:]]+)/\1 \2/I")
+
+    # local IFS=$'\n'
+    # chunks=$(echo "$bracketed" | tr ' ' '\n')
+    # chunks=($chunks)
+    chunks=$(echo "$bracketed" | tr ' ' '\n' | read -ar chunks)
+    for chunk in "${chunks[@]}"; do
+      printf "chunk: %s\n" "$chunk" >> ~/debug.txt
+      if ! echo "$chunk" | grep -q --only-matching --perl-regexp '^\d{1,4}/\d{1,4}$'; then
+        counter=$(echo "$chunk" | cut -d '/' -f 1)
+      fi
+    done
+  done <<< "$all_brackets"
+
+  printf "message_subject: %s all_brackets: %s stripped: %s bracketed: %s chunks: %s counter: %s\n" "$message_subject" "$all_brackets" "$stripped" "$bracketed" "$chunks" "$counter" >> ~/debug.txt
+
+  #sequence=$(grep --only-matching --perl-regexp '^\[([^]]*)]' <<< "$message_subject")
+  #sequence=$(printf '%s' "$sequence" | tr -d '-')
+
+  [[ "$counter" -eq 0 ]] && return 0
   return 1
 }
 
@@ -449,7 +479,7 @@ function process_patchsets()
     if [[ "$line" =~ ^[[:space:]]href= ]]; then
       patch_url=$(str_get_value_under_double_quotes "$line")
 
-      if [[ "${processed_patchsets["$patch_url"]}" != 1 ]] && is_introduction_patch "$patch_url"; then
+      if [[ "${processed_patchsets["$patch_url"]}" != 1 ]] && is_introduction_patch "$patch_title"; then
         # Processes each patch in parallel
         thread_for_process_patch "$PATCHSETS_PROCESSED" "$shared_dir_for_parallelism" \
           "$processed_patchset" "$patch_url" "$patch_title" &
