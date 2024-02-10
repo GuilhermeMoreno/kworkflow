@@ -172,21 +172,21 @@ function is_introduction_patch()
     # local IFS=$'\n'
     # chunks=$(echo "$bracketed" | tr ' ' '\n')
     # chunks=($chunks)
-    chunks=$(echo "$bracketed" | tr ' ' '\n' | read -ar chunks)
+    read -ra chunks <<< "${bracketed}"
     for chunk in "${chunks[@]}"; do
-      printf "chunk: %s\n" "$chunk" >> ~/debug.txt
+      printf "is inside loop: %s\n" "$chunk" >> ~/debug.txt
       if ! echo "$chunk" | grep -q --only-matching --perl-regexp '^\d{1,4}/\d{1,4}$'; then
         counter=$(echo "$chunk" | cut -d '/' -f 1)
       fi
     done
   done <<< "$all_brackets"
 
-  printf "message_subject: %s all_brackets: %s stripped: %s bracketed: %s chunks: %s counter: %s\n" "$message_subject" "$all_brackets" "$stripped" "$bracketed" "$chunks" "$counter" >> ~/debug.txt
+  # printf "message_subject: %s all_brackets: %s stripped: %s bracketed: %s chunks: %s counter: %s\n" "$message_subject" "$all_brackets" "$stripped" "$bracketed" "$chunks" "$counter" >> ~/debug.txt
 
   #sequence=$(grep --only-matching --perl-regexp '^\[([^]]*)]' <<< "$message_subject")
   #sequence=$(printf '%s' "$sequence" | tr -d '-')
 
-  [[ "$counter" -eq 0 ]] && return 0
+  [[ $(echo "$counter" | bc) -eq 0 ]] && return 0
   return 1
 }
 
@@ -477,6 +477,11 @@ function process_patchsets()
 
   while IFS= read -r line; do
     if [[ "$line" =~ ^[[:space:]]href= ]]; then
+
+      if [[ "$PATCHSETS_PROCESSED" -gt 10 ]]; then
+        PATCHSETS_PROCESSED=201
+      fi
+
       patch_url=$(str_get_value_under_double_quotes "$line")
 
       if [[ "${processed_patchsets["$patch_url"]}" != 1 ]] && is_introduction_patch "$patch_title"; then
